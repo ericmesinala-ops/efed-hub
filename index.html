@@ -37,10 +37,17 @@
   .hero-vid-wrap {
     position: absolute; inset: 0; z-index: 0; background: #000; overflow: hidden;
   }
-  .hero-vid-wrap iframe {
+  /* YT IFrame API injects an iframe inside #hero-yt-player */
+  #hero-yt-player {
     position: absolute; top: 50%; left: 50%;
-    width: 130%; height: 130%;
+    width: 177.8vh; /* 16:9 at full height */
+    height: 100vh;
+    min-width: 100%; min-height: 56.25vw; /* 16:9 at full width */
     transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  #hero-yt-player iframe {
+    width: 100% !important; height: 100% !important;
     border: none; pointer-events: none;
   }
   .hero-thumb {
@@ -277,9 +284,9 @@
 </nav>
 
 <section class="hero" id="hero">
-  <!-- Video layer -->
+  <!-- Video layer — YT IFrame API target -->
   <div class="hero-vid-wrap">
-    <iframe id="hero-iframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="hero-yt-player"></div>
   </div>
   <!-- Thumbnail fallback -->
   <div class="hero-thumb" id="hero-thumb"></div>
@@ -535,17 +542,75 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeM(); })
 buildPills();
 renderGrid();
 
-// ── NETFLIX HERO SLIDESHOW ────────────────────────────────────────────────────
-const HERO_SKIP = 10;   // seconds into each video to start
-const HERO_DUR  = 15;   // seconds to show each clip
+// ── NETFLIX HERO SLIDESHOW (YouTube IFrame API) ───────────────────────────────
+const HERO_SKIP = 10;
+const HERO_DUR  = 15;
 
-let heroIdx    = 0;
-let heroTimer  = null;
-let heroCountdown = null;
+let heroIdx   = 0;
+let heroTimer = null;
+let ytPlayer  = null;
+let ytReady   = false;
 
 function heroExtractId(url) {
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
   return m ? m[1] : '';
+}
+
+// Load YouTube IFrame API script
+(function() {
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
+
+// Called by YT API when ready
+function onYouTubeIframeAPIReady() {
+  const v  = videos[heroIdx];
+  const id = heroExtractId(v.url);
+
+  ytPlayer = new YT.Player('hero-yt-player', {
+    videoId: id,
+    playerVars: {
+      autoplay:       1,
+      mute:           1,
+      controls:       0,
+      disablekb:      1,
+      rel:            0,
+      modestbranding: 1,
+      playsinline:    1,
+      start:          HERO_SKIP,
+      fs:             0,
+      iv_load_policy: 3,
+    },
+    events: {
+      onReady: (e) => {
+        ytReady = true;
+        e.target.mute();
+        e.target.playVideo();
+        // Hide thumb once playing
+        setTimeout(() => {
+          document.getElementById('hero-fade').classList.remove('active');
+        }, 800);
+        setHeroDot(heroIdx);
+        showHeroText(v);
+        scheduleNext();
+      },
+      onStateChange: (e) => {
+        // If video ended early, advance
+        if (e.data === YT.PlayerState.ENDED) advanceHero();
+      }
+    }
+  });
+
+  buildHeroDots();
+  // Show thumb while player loads
+  updateThumb(id);
+  document.getElementById('hero-fade').classList.add('active');
+}
+
+function updateThumb(id) {
+  document.getElementById('hero-thumb').style.backgroundImage =
+    `url(https://i.ytimg.com/vi/${id}/maxresdefault.jpg)`;
 }
 
 function buildHeroDots() {
@@ -554,24 +619,22 @@ function buildHeroDots() {
   videos.forEach((_, i) => {
     const d = document.createElement('div');
     d.className = 'hero-dot' + (i === 0 ? ' active' : '');
-    d.onclick = () => { clearHeroTimers(); heroIdx = i; loadHeroSlide(true); };
+    d.onclick = () => { clearTimeout(heroTimer); heroIdx = i; switchHeroSlide(); };
     wrap.appendChild(d);
   });
   wrap.classList.add('show');
 }
 
 function setHeroDot(idx) {
-  document.querySelectorAll('.hero-dot').forEach((d, i) => {
-    d.classList.toggle('active', i === idx);
-  });
+  document.querySelectorAll('.hero-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === idx));
 }
 
 function showHeroText(v) {
-  // Animate in text
   ['hero-efed','hero-title','hero-sub','hero-btn'].forEach(id => {
     const el = document.getElementById(id);
     el.classList.remove('show');
-    void el.offsetWidth; // reflow
+    void el.offsetWidth;
     el.classList.add('show');
   });
   document.getElementById('hero-efed').textContent = v.efed;
@@ -579,58 +642,40 @@ function showHeroText(v) {
   document.getElementById('hero-sub').textContent = v.date || '';
 }
 
-function clearHeroTimers() {
+function scheduleNext() {
   clearTimeout(heroTimer);
-  clearInterval(heroCountdown);
+  heroTimer = setTimeout(advanceHero, HERO_DUR * 1000);
 }
 
-function loadHeroSlide(immediate) {
-  const v   = videos[heroIdx];
-  const id  = heroExtractId(v.url);
+function advanceHero() {
+  heroIdx = (heroIdx + 1) % videos.length;
+  switchHeroSlide();
+}
+
+function switchHeroSlide() {
+  if (!ytReady) return;
+  const v  = videos[heroIdx];
+  const id = heroExtractId(v.url);
   const fade = document.getElementById('hero-fade');
-  const thumb = document.getElementById('hero-thumb');
-  const iframe = document.getElementById('hero-iframe');
 
-  // Set thumb immediately
-  thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/maxresdefault.jpg)`;
+  fade.classList.add('active');
+  updateThumb(id);
 
-  const doLoad = () => {
-    // Fade to black
-    fade.classList.add('active');
-
-    setTimeout(() => {
-      // Swap iframe src — muted autoplay, no controls, no related
-      iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&start=${HERO_SKIP}&controls=0&disablekb=1&rel=0&modestbranding=1&loop=0&enablejsapi=0&playsinline=1`;
-
-      setHeroDot(heroIdx);
-      showHeroText(v);
-
-      // Fade back in
-      setTimeout(() => { fade.classList.remove('active'); }, 200);
-
-      // After clip duration, advance
-      heroTimer = setTimeout(() => {
-        heroIdx = (heroIdx + 1) % videos.length;
-        loadHeroSlide(false);
-      }, HERO_DUR * 1000);
-
-    }, 700);
-  };
-
-  if (immediate) {
-    doLoad();
-  } else {
-    setTimeout(doLoad, 300);
-  }
+  setTimeout(() => {
+    ytPlayer.loadVideoById({ videoId: id, startSeconds: HERO_SKIP });
+    ytPlayer.mute();
+    setHeroDot(heroIdx);
+    showHeroText(v);
+    setTimeout(() => { fade.classList.remove('active'); }, 400);
+    scheduleNext();
+  }, 600);
 }
 
 function heroWatchNow() {
+  if (ytReady) ytPlayer.pauseVideo();
+  clearTimeout(heroTimer);
   openM(videos[heroIdx]);
 }
-
-// Kick off
-buildHeroDots();
-loadHeroSlide(true);
 </script>
 </body>
 </html>

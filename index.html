@@ -42,13 +42,14 @@
     width: 177.78vh; height: 100vh;
     min-width: 100%; min-height: 56.25vw;
     transform: translate(-50%, -50%);
-    opacity: .5; pointer-events: none; border: none;
+    opacity: .6; pointer-events: none; border: none;
   }
   .hero-thumb {
-    position: absolute; inset: 0; z-index: 1;
+    position: absolute; inset: 0; z-index: 2;
     background-size: cover; background-position: center;
-    transition: opacity .8s ease;
+    transition: opacity 1.5s ease;
   }
+  .hero-thumb.hidden { opacity: 0; pointer-events: none; }
   .hero-fade {
     position: absolute; inset: 0; z-index: 2;
     background: #000; opacity: 0; pointer-events: none;
@@ -356,7 +357,7 @@
 <section class="hero" id="hero">
   <!-- Video layer — src hardcoded so browser fires autoplay immediately -->
   <div class="hero-vid-wrap">
-    <iframe id="hero-iframe" src="https://www.youtube.com/embed/SGQqbCUJvME?autoplay=1&mute=1&start=10&loop=1&playlist=SGQqbCUJvME&controls=0&disablekb=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&enablejsapi=1&playsinline=1" frameborder="0"
+    <iframe id="hero-iframe" src="https://www.youtube.com/embed/lq8DgP7nQB0?autoplay=1&mute=1&start=10&loop=1&playlist=lq8DgP7nQB0&controls=0&disablekb=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&enablejsapi=1&playsinline=1" frameborder="0"
       allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
   <!-- Thumbnail fallback -->
@@ -470,6 +471,7 @@ const videos = [
   { url: "https://www.youtube.com/watch?v=P-q7UGmFeJc&t=71s",   show: "REVENGE - Supershow Toronto: Season 3 | Episode 5",    efed: "Revenge Wrestling",          date: "Dec 31, 2025" },
   { url: "https://www.youtube.com/watch?v=lq8DgP7nQB0",         show: "WWE 2K: COH RISE | Episode 437",                       efed: "COH Wrestling",              date: "Mar 4, 2026"  },
   { url: "https://www.twitch.tv/videos/2717196152",              show: "SSBW SmashDown Episode 129",                           efed: "Super Smash Bros Wrestling", date: "Mar 8, 2026", platform: "twitch" },
+  { url: "https://www.twitch.tv/videos/2714924592",              show: "SPW Carnage TV",                                       efed: "The Syndicate Network",      date: "Mar 5, 2026", platform: "twitch" },
 ];
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -575,14 +577,14 @@ function openM(v) {
 
   let src;
   if (platform === 'twitch') {
-    src = `https://player.twitch.tv/?video=${id}&parent=${location.hostname}&autoplay=true&muted=false`;
+    src = `https://player.twitch.tv/?video=${id}&parent=efedhub.vercel.app&parent=localhost&autoplay=true&muted=false`;
   } else {
     src = `https://www.youtube.com/embed/${id}?autoplay=1&start=${_currentT}&rel=0&modestbranding=1&enablejsapi=1`;
   }
 
   document.getElementById('m-frame').src = src;
   document.getElementById('modal-vid').style.display = 'block';
-  document.getElementById('pause-fab').style.display = platform === 'twitch' ? 'none' : 'flex';
+  document.getElementById('pause-fab').style.display = 'flex';
 
   const eq = document.getElementById('eq-bars');
   eq.classList.add('playing');
@@ -609,8 +611,17 @@ function setPauseIcon(paused) {
 
 function togglePause() {
   const frame = document.getElementById('m-frame');
-  const msg = _paused ? '{"event":"command","func":"playVideo","args":""}' : '{"event":"command","func":"pauseVideo","args":""}';
-  frame.contentWindow.postMessage(msg, '*');
+  const src = frame.src || '';
+  if (src.includes('twitch.tv')) {
+    // Twitch player postMessage API
+    const msg = _paused ? { method: 'play' } : { method: 'pause' };
+    frame.contentWindow.postMessage(JSON.stringify(msg), '*');
+  } else {
+    const msg = _paused
+      ? '{"event":"command","func":"playVideo","args":""}'
+      : '{"event":"command","func":"pauseVideo","args":""}';
+    frame.contentWindow.postMessage(msg, '*');
+  }
   _paused = !_paused;
   setPauseIcon(_paused);
   const eq = document.getElementById('eq-bars');
@@ -676,12 +687,17 @@ function updateThumb(id, url) {
 }
 
 function buildHeroDots() {
+  const list = [...videos].sort((a, b) => new Date(b.date) - new Date(a.date));
   const wrap = document.getElementById('hero-dots');
   wrap.innerHTML = '';
-  videos.forEach((_, i) => {
+  list.forEach((_, i) => {
     const d = document.createElement('div');
     d.className = 'hero-dot' + (i === 0 ? ' active' : '');
-    d.onclick = () => { clearTimeout(heroTimer); heroIdx = i; loadSlide(); };
+    d.onclick = () => {
+      clearTimeout(heroTimer);
+      heroIdx = i;
+      loadSlide();
+    };
     wrap.appendChild(d);
   });
   wrap.classList.add('show');
@@ -707,35 +723,40 @@ function showHeroText(v) {
 let _heroFirstLoad = true;
 
 function loadSlide() {
-  const v      = videos[heroIdx];
+  const list = [...videos].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const v      = list[heroIdx];
   const id     = heroExtractId(v.url);
   const fade   = document.getElementById('hero-fade');
   const iframe = document.getElementById('hero-iframe');
+  const thumb  = document.getElementById('hero-thumb');
 
   updateThumb(id, v.url);
   setHeroDot(heroIdx);
 
   if (_heroFirstLoad) {
-    // Src already set in HTML — just show text and schedule next
     _heroFirstLoad = false;
     showHeroText(v);
+    // Fade thumb out after 2s to reveal video underneath
+    setTimeout(() => thumb.classList.add('hidden'), 2000);
     setTimeout(() => fade.classList.remove('active'), 800);
     heroTimer = setTimeout(() => {
-      heroIdx = (heroIdx + 1) % videos.length;
+      heroIdx = (heroIdx + 1) % list.length;
       loadSlide();
     }, HERO_DUR * 1000);
     return;
   }
 
-  // Subsequent slides — fade, swap src, fade back
   fade.classList.add('active');
+  thumb.classList.remove('hidden');
   setTimeout(() => {
     iframe.src = heroSrc(id);
     showHeroText(v);
     setTimeout(() => fade.classList.remove('active'), 300);
+    // Fade thumb out after video has time to buffer
+    setTimeout(() => thumb.classList.add('hidden'), 2500);
     clearTimeout(heroTimer);
     heroTimer = setTimeout(() => {
-      heroIdx = (heroIdx + 1) % videos.length;
+      heroIdx = (heroIdx + 1) % list.length;
       loadSlide();
     }, HERO_DUR * 1000);
   }, 600);

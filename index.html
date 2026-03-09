@@ -504,6 +504,7 @@ function filteredVideos() {
   return list.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 function buildPills() {
+  if (window.innerWidth <= 768) return;
   const efeds = [...new Set(videos.map(v => v.efed))];
   const wrap = document.getElementById('filter-wrap');
   efeds.forEach(e => {

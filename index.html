@@ -607,8 +607,22 @@ function heroSrc(id) {
 }
 
 function updateThumb(id) {
-  document.getElementById('hero-thumb').style.backgroundImage =
-    `url(https://i.ytimg.com/vi/${id}/maxresdefault.jpg)`;
+  // Try maxres first, fall back to hqdefault
+  const thumb = document.getElementById('hero-thumb');
+  const img = new Image();
+  img.onload = () => {
+    if (img.width > 120) {
+      thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/maxresdefault.jpg)`;
+    } else {
+      thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)`;
+    }
+  };
+  img.onerror = () => {
+    thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)`;
+  };
+  // Set hqdefault immediately so something shows, upgrade if maxres exists
+  thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)`;
+  img.src = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
 }
 
 function buildHeroDots() {

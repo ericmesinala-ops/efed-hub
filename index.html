@@ -660,7 +660,7 @@ renderGrid();
 
 // ── NETFLIX HERO SLIDESHOW ────────────────────────────────────────────────────
 const HERO_SKIP = 20;
-const HERO_DUR  = 15;
+const HERO_DUR  = 20;
 let heroIdx   = 0;
 let heroTimer = null;
 
@@ -675,21 +675,6 @@ function heroExtractId(url) {
 
 function heroSrc(id) {
   return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&start=${HERO_SKIP}&loop=1&playlist=${id}&controls=0&disablekb=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&enablejsapi=1&playsinline=1`;
-}
-
-function updateThumb(id, url) {
-  const thumb = document.getElementById('hero-thumb');
-  if (url && url.includes('twitch.tv')) {
-    thumb.style.backgroundImage = `url(https://static-cdn.jtvnw.net/cf_vods/dgeft87wbj63p/${id}/thumb/thumb0-1280x720.jpg)`;
-    return;
-  }
-  // YouTube — try maxres, fallback to hqdefault
-  thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)`;
-  const img = new Image();
-  img.onload = () => {
-    if (img.width > 120) thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/maxresdefault.jpg)`;
-  };
-  img.src = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
 }
 
 function buildHeroDots() {
@@ -736,14 +721,13 @@ function loadSlide() {
   const iframe = document.getElementById('hero-iframe');
   const thumb  = document.getElementById('hero-thumb');
 
-  updateThumb(id, v.url);
   setHeroDot(heroIdx);
 
   if (_heroFirstLoad) {
     _heroFirstLoad = false;
+    thumb.classList.add('hidden');
+    iframe.src = heroSrc(id);
     showHeroText(v);
-    // Fade thumb out after 2s to reveal video underneath
-    setTimeout(() => thumb.classList.add('hidden'), 2000);
     setTimeout(() => fade.classList.remove('active'), 800);
     heroTimer = setTimeout(() => {
       heroIdx = (heroIdx + 1) % list.length;
@@ -753,13 +737,11 @@ function loadSlide() {
   }
 
   fade.classList.add('active');
-  thumb.classList.remove('hidden');
+  thumb.classList.add('hidden');
   setTimeout(() => {
     iframe.src = heroSrc(id);
     showHeroText(v);
     setTimeout(() => fade.classList.remove('active'), 300);
-    // Fade thumb out after video has time to buffer
-    setTimeout(() => thumb.classList.add('hidden'), 2500);
     clearTimeout(heroTimer);
     heroTimer = setTimeout(() => {
       heroIdx = (heroIdx + 1) % list.length;

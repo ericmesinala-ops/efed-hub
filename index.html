@@ -331,9 +331,9 @@
 </nav>
 
 <section class="hero" id="hero">
-  <!-- Video layer — plain iframe, autoplay+mute baked into src -->
+  <!-- Video layer — src hardcoded so browser fires autoplay immediately -->
   <div class="hero-vid-wrap">
-    <iframe id="hero-iframe" src="" frameborder="0"
+    <iframe id="hero-iframe" src="https://www.youtube.com/embed/SGQqbCUJvME?autoplay=1&mute=1&start=10&loop=1&playlist=SGQqbCUJvME&controls=0&disablekb=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&enablejsapi=1&playsinline=1" frameborder="0"
       allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
   <!-- Thumbnail fallback -->
@@ -640,23 +640,35 @@ function showHeroText(v) {
   document.getElementById('hero-sub').textContent = v.date || '';
 }
 
+let _heroFirstLoad = true;
+
 function loadSlide() {
-  const v    = videos[heroIdx];
-  const id   = heroExtractId(v.url);
-  const fade = document.getElementById('hero-fade');
+  const v      = videos[heroIdx];
+  const id     = heroExtractId(v.url);
+  const fade   = document.getElementById('hero-fade');
   const iframe = document.getElementById('hero-iframe');
 
-  // Fade to black, swap src, fade back in
-  fade.classList.add('active');
   updateThumb(id);
+  setHeroDot(heroIdx);
 
+  if (_heroFirstLoad) {
+    // Src already set in HTML — just show text and schedule next
+    _heroFirstLoad = false;
+    showHeroText(v);
+    setTimeout(() => fade.classList.remove('active'), 800);
+    heroTimer = setTimeout(() => {
+      heroIdx = (heroIdx + 1) % videos.length;
+      loadSlide();
+    }, HERO_DUR * 1000);
+    return;
+  }
+
+  // Subsequent slides — fade, swap src, fade back
+  fade.classList.add('active');
   setTimeout(() => {
     iframe.src = heroSrc(id);
-    setHeroDot(heroIdx);
     showHeroText(v);
     setTimeout(() => fade.classList.remove('active'), 300);
-
-    // After clip duration advance to next
     clearTimeout(heroTimer);
     heroTimer = setTimeout(() => {
       heroIdx = (heroIdx + 1) % videos.length;

@@ -315,6 +315,7 @@
       display: flex; flex-direction: column;
       transform: none !important;
     }
+    .modal-preview { flex: 1; width: 100%; aspect-ratio: unset; }
     .modal-vid { flex: 1; width: 100%; height: 100dvh; max-height: 100dvh; aspect-ratio: unset; display: block; position: relative; overflow: hidden; }
     .modal-vid iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: block; }
     .modal-info { display: none !important; }
@@ -329,7 +330,7 @@
     .hero { padding: 0 20px 50px; height: 70vh; min-height: 400px; }
     .hero-title { font-size: 2.2rem; }
     .divider, .sec-head, .filter-wrap { padding: 0 20px; }
-    .filter-wrap { padding-bottom: 12px; }
+    .filter-wrap { padding-bottom: 12px; display: none; }
     .card-grid { padding: 8px 20px 20px; }
     .row-arr { display: none; }
     footer { padding: 24px 20px; flex-direction: column; gap: 10px; text-align: center; }
@@ -471,8 +472,6 @@ const videos = [
   { url: "https://www.youtube.com/watch?v=SGQqbCUJvME&t=3245s", show: 'FSW 52: Maximum \u2014 \u201cChoices\u201d (Full Show)', efed: "First Strike Wrestling",      date: "Feb 12, 2026" },
   { url: "https://www.youtube.com/watch?v=P-q7UGmFeJc&t=71s",   show: "REVENGE - Supershow Toronto: Season 3 | Episode 5",    efed: "Revenge Wrestling",          date: "Dec 31, 2025" },
   { url: "https://www.youtube.com/watch?v=lq8DgP7nQB0",         show: "WWE 2K: COH RISE | Episode 437",                       efed: "COH Wrestling",              date: "Mar 4, 2026"  },
-  { url: "https://www.twitch.tv/videos/2717196152", show: "SSBW SmashDown Episode 129", efed: "Super Smash Bros Wrestling", date: "Mar 8, 2026", platform: "twitch", thumb: "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/5c6b23e4bbca2b63e16c_ssbwrestling_39188413164_1741465200//thumb/thumb-2717196152-320x240.jpg" },
-  { url: "https://www.twitch.tv/videos/2714924592", show: "SPW Carnage TV",              efed: "The Syndicate Network",      date: "Mar 5, 2026", platform: "twitch", thumb: "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/spwcarnage_39188413164_1741124400//thumb/thumb-2714924592-320x240.jpg" },
 ];
 // ─────────────────────────────────────────────────────────────────────────────
 

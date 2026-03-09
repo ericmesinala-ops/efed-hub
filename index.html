@@ -29,36 +29,84 @@
   .logo-main { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 4px; color: #fff; }
   .logo-main em { color: var(--gold); font-style: normal; }
 
+  /* ── NETFLIX HERO ── */
   .hero {
-    position: relative; min-height: 52vh;
-    display: flex; align-items: flex-end; padding: 0 56px 64px; overflow: hidden;
+    position: relative; height: 88vh; min-height: 520px;
+    display: flex; align-items: flex-end; padding: 0 56px 72px; overflow: hidden;
   }
-  .hero-bg { position: absolute; inset: 0; background: var(--bg); }
-  .hero-pattern {
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(135deg, rgba(192,0,14,.035) 0px, rgba(192,0,14,.035) 1px, transparent 1px, transparent 48px),
-                repeating-linear-gradient(45deg, rgba(200,168,75,.018) 0px, rgba(200,168,75,.018) 1px, transparent 1px, transparent 48px);
+  .hero-vid-wrap {
+    position: absolute; inset: 0; z-index: 0; background: #000; overflow: hidden;
   }
-  .hero-glow { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 55% at 60% 40%, rgba(192,0,14,.12) 0%, transparent 70%); }
+  .hero-vid-wrap iframe {
+    position: absolute; top: 50%; left: 50%;
+    width: 130%; height: 130%;
+    transform: translate(-50%, -50%);
+    border: none; pointer-events: none;
+  }
+  .hero-thumb {
+    position: absolute; inset: 0; z-index: 1;
+    background-size: cover; background-position: center;
+    transition: opacity .8s ease;
+  }
+  .hero-fade {
+    position: absolute; inset: 0; z-index: 2;
+    background: #000; opacity: 0; pointer-events: none;
+    transition: opacity .7s ease;
+  }
+  .hero-fade.active { opacity: 1; }
   .hero-grain {
-    position: absolute; inset: 0; opacity: .04; pointer-events: none;
+    position: absolute; inset: 0; z-index: 3; opacity: .035; pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
     background-size: 200px; animation: grain 1s steps(2) infinite;
   }
   @keyframes grain { 0%{background-position:0 0} 25%{background-position:20px -15px} 50%{background-position:-10px 20px} 75%{background-position:15px 10px} 100%{background-position:-20px -5px} }
-  .hero-vignette { position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,7,10,1) 0%, rgba(7,7,10,.3) 50%, transparent 100%); }
-  .hero-content { position: relative; z-index: 2; }
+  .hero-vignette {
+    position: absolute; inset: 0; z-index: 4;
+    background:
+      linear-gradient(to right, rgba(7,7,10,.88) 0%, rgba(7,7,10,.3) 50%, transparent 100%),
+      linear-gradient(to top, rgba(7,7,10,1) 0%, rgba(7,7,10,.15) 38%, transparent 65%);
+  }
+  .hero-content { position: relative; z-index: 5; max-width: 560px; }
   .hero-kicker {
     display: inline-flex; align-items: center; gap: 8px;
     border: 1px solid rgba(200,168,75,.3); background: rgba(200,168,75,.07);
     color: var(--gold); font-size: .65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
-    padding: 5px 14px; border-radius: 2px; margin-bottom: 18px;
+    padding: 5px 14px; border-radius: 2px; margin-bottom: 16px;
   }
   .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 1.8s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
-  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem,7vw,5.8rem); line-height: .88; letter-spacing: 3px; color: #fff; margin-bottom: 14px; }
-  .hero-title em { color: var(--gold); font-style: normal; }
-  .hero-sub { font-size: .85rem; color: rgba(232,232,232,.5); font-weight: 300; letter-spacing: .5px; max-width: 480px; line-height: 1.6; }
+  .hero-efed {
+    font-size: .62rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 8px;
+    opacity: 0; transform: translateY(8px); transition: opacity .5s .1s, transform .5s .1s;
+  }
+  .hero-efed.show { opacity: 1; transform: translateY(0); }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.4rem,6vw,5rem);
+    line-height: .9; letter-spacing: 2px; color: #fff; margin-bottom: 12px;
+    opacity: 0; transform: translateY(14px); transition: opacity .55s .2s, transform .55s .2s;
+  }
+  .hero-title.show { opacity: 1; transform: translateY(0); }
+  .hero-sub {
+    font-size: .82rem; color: rgba(232,232,232,.55); font-weight: 300;
+    letter-spacing: .5px; line-height: 1.6; margin-bottom: 22px;
+    opacity: 0; transform: translateY(10px); transition: opacity .55s .32s, transform .55s .32s;
+  }
+  .hero-sub.show { opacity: 1; transform: translateY(0); }
+  .hero-dots { display: flex; gap: 6px; margin-bottom: 24px; opacity: 0; transition: opacity .4s .45s; }
+  .hero-dots.show { opacity: 1; }
+  .hero-dot { height: 3px; border-radius: 2px; background: rgba(255,255,255,.22); transition: background .3s, width .3s; width: 22px; }
+  .hero-dot.active { background: var(--accent); width: 38px; }
+  .hero-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #fff; color: #000; font-family: 'DM Sans', sans-serif;
+    font-size: .85rem; font-weight: 700; padding: 12px 28px; border-radius: 4px;
+    border: none; cursor: pointer; letter-spacing: .5px; text-decoration: none;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .55s .42s, transform .55s .42s, background .2s;
+  }
+  .hero-btn.show { opacity: 1; transform: translateY(0); }
+  .hero-btn:hover { background: rgba(255,255,255,.85); }
 
   .divider { display: flex; align-items: center; gap: 16px; padding: 0 56px; margin-bottom: 32px; }
   .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,.06); }
@@ -141,32 +189,81 @@
   .modal-vid { width: 100%; aspect-ratio: 16/9; background: #000; display: none; position: relative; }
   .modal-vid iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: block; }
 
-  .modal-info { padding: 14px 22px 18px; }
+  .modal-info { padding: 14px 22px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .modal-info-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+  .modal-info-text { flex: 1; min-width: 0; }
   .modal-efed { font-size: .62rem; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
-  .modal-show { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .modal-show { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .modal-meta { font-size: .76rem; color: var(--muted); }
+
+  /* Animated equalizer bars */
+  .eq-bars { display: none; align-items: flex-end; gap: 3px; height: 22px; flex-shrink: 0; }
+  .eq-bars.playing { display: flex; }
+  .eq-bars.paused .eq-bar { animation-play-state: paused; }
+  .eq-bar {
+    width: 3px; border-radius: 2px; background: var(--accent);
+    animation: eq-bounce 0s ease-in-out infinite alternate;
+  }
+  .eq-bar:nth-child(1) { animation-duration: .5s;  animation-delay: 0s;    height: 60%; }
+  .eq-bar:nth-child(2) { animation-duration: .7s;  animation-delay: .1s;   height: 90%; }
+  .eq-bar:nth-child(3) { animation-duration: .4s;  animation-delay: .25s;  height: 45%; }
+  .eq-bar:nth-child(4) { animation-duration: .65s; animation-delay: .05s;  height: 75%; }
+  .eq-bar:nth-child(5) { animation-duration: .55s; animation-delay: .15s;  height: 55%; }
+  @keyframes eq-bounce {
+    from { transform: scaleY(.2); opacity: .5; }
+    to   { transform: scaleY(1);  opacity: 1;  }
+  }
   .modal-close { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,.7); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem; z-index: 10; display: flex; align-items: center; justify-content: center; transition: background .2s; }
   .modal-close:hover { background: var(--accent); }
+
+  /* Pause button — right side of info bar */
+  .pause-fab {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 14px rgba(192,0,14,.45);
+    transition: transform .2s, box-shadow .2s;
+    flex-shrink: 0;
+  }
+  .pause-fab:hover { transform: scale(1.08); box-shadow: 0 0 24px rgba(192,0,14,.75); }
+  .pause-fab svg { pointer-events: none; display: block; }
+
+  /* Mobile landscape — fill the whole screen with the video */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .modal-bg { align-items: stretch; padding: 0; }
+    .modal-box {
+      width: 100%; max-width: 100%; height: 100vh;
+      border-radius: 0; border: none;
+      display: flex; flex-direction: column;
+    }
+    .modal-vid { flex: 1; aspect-ratio: unset; height: auto; }
+    .modal-controls { padding: 6px 14px 0; }
+    .modal-info { padding: 6px 14px 8px; }
+    .modal-show { font-size: .88rem; }
+    .modal-close { top: 8px; right: 8px; }
+  }
 
   footer { border-top: 1px solid rgba(255,255,255,.05); padding: 32px 56px; display: flex; align-items: center; justify-content: space-between; font-size: .74rem; color: var(--muted); }
   .foot-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 3px; color: rgba(255,255,255,.2); }
 
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
-    .hero { padding: 0 20px 50px; min-height: 40vh; }
-    .hero-title { font-size: 2.6rem; }
+    .hero { padding: 0 20px 50px; height: 70vh; min-height: 400px; }
+    .hero-title { font-size: 2.2rem; }
     .divider, .sec-head, .filter-wrap { padding: 0 20px; }
     .filter-wrap { padding-bottom: 12px; }
     .card-grid { padding: 8px 20px 16px; }
     footer { padding: 24px 20px; flex-direction: column; gap: 10px; text-align: center; }
     :root { --card-w: 200px; --card-h: 112px; }
     .modal-big-play { width: 56px; height: 56px; }
+    .hero-vid-wrap iframe { width: 200%; height: 200%; }
   }
   @media (max-width: 480px) {
-    .hero-title { font-size: 2rem; }
+    .hero-title { font-size: 1.8rem; }
     :root { --card-w: 155px; --card-h: 88px; }
-    .hero { padding: 0 16px 44px; }
+    .hero { padding: 0 16px 44px; height: 65vh; }
     .card-grid { gap: 14px 10px; }
+    .hero-vid-wrap iframe { width: 250%; height: 250%; }
   }
 </style>
 </head>
@@ -179,16 +276,30 @@
   </a>
 </nav>
 
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-pattern"></div>
-  <div class="hero-glow"></div>
+<section class="hero" id="hero">
+  <!-- Video layer -->
+  <div class="hero-vid-wrap">
+    <iframe id="hero-iframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+  <!-- Thumbnail fallback -->
+  <div class="hero-thumb" id="hero-thumb"></div>
+  <!-- Black fade for transitions -->
+  <div class="hero-fade" id="hero-fade"></div>
+  <!-- Grain -->
   <div class="hero-grain"></div>
+  <!-- Gradients -->
   <div class="hero-vignette"></div>
+  <!-- Content -->
   <div class="hero-content">
     <div class="hero-kicker"><span class="pulse"></span> Now Streaming</div>
-    <h1 class="hero-title"><em>EFED</em><br>Streaming<br>Hub</h1>
-    <p class="hero-sub">Your home for eFed content across the universe — shows, events, and more from every federation.</p>
+    <div class="hero-efed" id="hero-efed"></div>
+    <h1 class="hero-title" id="hero-title"></h1>
+    <p class="hero-sub" id="hero-sub"></p>
+    <div class="hero-dots" id="hero-dots"></div>
+    <button class="hero-btn" id="hero-btn" onclick="heroWatchNow()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Watch Now
+    </button>
   </div>
 </section>
 
@@ -245,10 +356,26 @@
         allowfullscreen></iframe>
     </div>
 
-    <div class="modal-info">
-      <div class="modal-efed" id="m-efed"></div>
-      <div class="modal-show" id="m-show"></div>
-      <div class="modal-meta" id="m-meta"></div>
+    <div class="modal-info" id="modal-info">
+      <div class="modal-info-left">
+        <div class="eq-bars" id="eq-bars">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+        </div>
+        <div class="modal-info-text">
+          <div class="modal-efed" id="m-efed"></div>
+          <div class="modal-show" id="m-show"></div>
+          <div class="modal-meta" id="m-meta"></div>
+        </div>
+      </div>
+      <button class="pause-fab" id="pause-fab" onclick="togglePause()" title="Pause / Resume" style="display:none">
+        <svg id="pause-icon" width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
@@ -279,7 +406,8 @@ const PAGE_SIZE = 12;
 let visibleCount = PAGE_SIZE;
 
 function filteredVideos() {
-  return activeFilter === 'all' ? videos : videos.filter(v => v.efed === activeFilter);
+  const list = activeFilter === 'all' ? [...videos] : videos.filter(v => v.efed === activeFilter);
+  return list.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 function buildPills() {
   const efeds = [...new Set(videos.map(v => v.efed))];
@@ -338,16 +466,27 @@ function makeCard(v) {
 let _currentId = '';
 let _currentT  = 0;
 
+let _paused = false;
+
 function openM(v) {
   _currentId = extractId(v.url);
   _currentT  = extractT(v.url);
+  _paused = false;
 
-  // Show thumbnail preview, hide iframe
-  document.getElementById('modal-thumb').src = `https://i.ytimg.com/vi/${_currentId}/maxresdefault.jpg`;
-  document.getElementById('modal-thumb').onerror = function(){ this.src = `https://i.ytimg.com/vi/${_currentId}/hqdefault.jpg`; };
-  document.getElementById('modal-preview').style.display = '';
-  document.getElementById('modal-vid').style.display = 'none';
-  document.getElementById('m-frame').src = '';
+  // Hide thumbnail preview — autoplay immediately
+  document.getElementById('modal-preview').style.display = 'none';
+
+  // Load iframe with autoplay
+  const src = `https://www.youtube.com/embed/${_currentId}?autoplay=1&start=${_currentT}&rel=0&modestbranding=1&enablejsapi=1`;
+  document.getElementById('m-frame').src = src;
+  document.getElementById('modal-vid').style.display = 'block';
+
+  // Show pause controls row
+  document.getElementById('pause-fab').style.display = 'flex';
+  const eq = document.getElementById('eq-bars');
+  eq.classList.add('playing');
+  eq.classList.remove('paused');
+  setPauseIcon(false);
 
   document.getElementById('m-efed').textContent = v.efed;
   document.getElementById('m-show').textContent = v.show;
@@ -356,12 +495,25 @@ function openM(v) {
   document.body.style.overflow = 'hidden';
 }
 
-// Called when user clicks the big play button — THIS counts as a user gesture so autoplay works
-function startVideo() {
-  const src = `https://www.youtube.com/embed/${_currentId}?autoplay=1&start=${_currentT}&rel=0&modestbranding=1`;
-  document.getElementById('m-frame').src = src;
-  document.getElementById('modal-preview').style.display = 'none';
-  document.getElementById('modal-vid').style.display = 'block';
+function setPauseIcon(paused) {
+  const icon = document.getElementById('pause-icon');
+  if (paused) {
+    // Play triangle
+    icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+  } else {
+    // Pause bars
+    icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  }
+}
+
+function togglePause() {
+  const frame = document.getElementById('m-frame');
+  const msg = _paused ? '{"event":"command","func":"playVideo","args":""}' : '{"event":"command","func":"pauseVideo","args":""}';
+  frame.contentWindow.postMessage(msg, '*');
+  _paused = !_paused;
+  setPauseIcon(_paused);
+  const eq = document.getElementById('eq-bars');
+  eq.classList.toggle('paused', _paused);
 }
 
 function closeM() {
@@ -370,6 +522,9 @@ function closeM() {
   document.getElementById('m-frame').src = '';
   document.getElementById('modal-vid').style.display = 'none';
   document.getElementById('modal-preview').style.display = '';
+  document.getElementById('pause-fab').style.display = 'none';
+  document.getElementById('eq-bars').classList.remove('playing', 'paused');
+  _paused = false;
 }
 
 window.addEventListener('scroll', () => {
@@ -379,6 +534,103 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeM(); })
 
 buildPills();
 renderGrid();
+
+// ── NETFLIX HERO SLIDESHOW ────────────────────────────────────────────────────
+const HERO_SKIP = 10;   // seconds into each video to start
+const HERO_DUR  = 15;   // seconds to show each clip
+
+let heroIdx    = 0;
+let heroTimer  = null;
+let heroCountdown = null;
+
+function heroExtractId(url) {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+
+function buildHeroDots() {
+  const wrap = document.getElementById('hero-dots');
+  wrap.innerHTML = '';
+  videos.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => { clearHeroTimers(); heroIdx = i; loadHeroSlide(true); };
+    wrap.appendChild(d);
+  });
+  wrap.classList.add('show');
+}
+
+function setHeroDot(idx) {
+  document.querySelectorAll('.hero-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+}
+
+function showHeroText(v) {
+  // Animate in text
+  ['hero-efed','hero-title','hero-sub','hero-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('show');
+    void el.offsetWidth; // reflow
+    el.classList.add('show');
+  });
+  document.getElementById('hero-efed').textContent = v.efed;
+  document.getElementById('hero-title').textContent = v.show;
+  document.getElementById('hero-sub').textContent = v.date || '';
+}
+
+function clearHeroTimers() {
+  clearTimeout(heroTimer);
+  clearInterval(heroCountdown);
+}
+
+function loadHeroSlide(immediate) {
+  const v   = videos[heroIdx];
+  const id  = heroExtractId(v.url);
+  const fade = document.getElementById('hero-fade');
+  const thumb = document.getElementById('hero-thumb');
+  const iframe = document.getElementById('hero-iframe');
+
+  // Set thumb immediately
+  thumb.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/maxresdefault.jpg)`;
+
+  const doLoad = () => {
+    // Fade to black
+    fade.classList.add('active');
+
+    setTimeout(() => {
+      // Swap iframe src — muted autoplay, no controls, no related
+      iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&start=${HERO_SKIP}&controls=0&disablekb=1&rel=0&modestbranding=1&loop=0&enablejsapi=0&playsinline=1`;
+
+      setHeroDot(heroIdx);
+      showHeroText(v);
+
+      // Fade back in
+      setTimeout(() => { fade.classList.remove('active'); }, 200);
+
+      // After clip duration, advance
+      heroTimer = setTimeout(() => {
+        heroIdx = (heroIdx + 1) % videos.length;
+        loadHeroSlide(false);
+      }, HERO_DUR * 1000);
+
+    }, 700);
+  };
+
+  if (immediate) {
+    doLoad();
+  } else {
+    setTimeout(doLoad, 300);
+  }
+}
+
+function heroWatchNow() {
+  openM(videos[heroIdx]);
+}
+
+// Kick off
+buildHeroDots();
+loadHeroSlide(true);
 </script>
 </body>
 </html>

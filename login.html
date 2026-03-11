@@ -331,8 +331,8 @@
     try {
       await window.Clerk.client.signIn.authenticateWithRedirect({
         strategy: 'oauth_x',
-        redirectUrl: window.location.href,
-        redirectUrlComplete: HUB_URL,
+        redirectUrl: '/login.html',
+        redirectUrlComplete: '/index.html',
       });
     } catch (err) {
       showError(err.errors?.[0]?.longMessage || 'X sign-in failed. Please try again.');

@@ -6,40 +6,15 @@
 <title>EFED Streaming Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <script>
-  window.__clerk_publishable_key = 'pk_test_Z29yZ2VvdXMtYWtpdGEtODYuY2xlcmsuYWNjb3VudHMuZGV2JA';
-</script>
-<script async crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
-<style>
-  #auth-guard-overlay {
-    position: fixed; inset: 0; z-index: 99999;
-    background: #07070a;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #auth-guard-overlay .g-spin {
-    width: 32px; height: 32px;
-    border: 2px solid rgba(200,168,75,.2);
-    border-top-color: #c8a84b;
-    border-radius: 50%;
-    animation: gspin .7s linear infinite;
-  }
-  @keyframes gspin { to { transform: rotate(360deg); } }
-</style>
-<div id="auth-guard-overlay"><div class="g-spin"></div></div>
-<script>
-  (async function() {
-    function waitForClerk() {
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (window.Clerk) { clearInterval(interval); resolve(); }
-        }, 50);
-      });
-    }
-    await waitForClerk();
-    await window.Clerk.load();
-    if (!window.Clerk.user) {
-      window.location.replace('https://efed-gray.vercel.app/login.html');
-    } else {
-      document.getElementById('auth-guard-overlay').remove();
+  // Simple session-based auth guard — no third party needed
+  (function() {
+    try {
+      const session = JSON.parse(localStorage.getItem('efed_session'));
+      if (!session || !session.username) {
+        window.location.replace('auth.html');
+      }
+    } catch(e) {
+      window.location.replace('auth.html');
     }
   })();
 </script>
@@ -1978,180 +1953,38 @@ handleFormSubmit('cf-remove-form', 'cf-remove-success');
 </div>
 
 <script>
-// ── CLERK AUTH INTEGRATION ──
-let clerkReady = false;
+// ── SESSION-BASED AUTH ──
+function getSession() {
+  try { return JSON.parse(localStorage.getItem('efed_session')); } catch { return null; }
+}
 
-window.addEventListener('load', async () => {
-  try {
-    await window.Clerk.load();
-    clerkReady = true;
-    updateAuthUI();
-
-    // Listen for auth state changes
-    window.Clerk.addListener(({ user }) => {
-      updateAuthUI();
-    });
-  } catch (e) {
-    console.warn('Clerk failed to load:', e);
-  }
-});
-
-function updateAuthUI() {
-  const user = window.Clerk && window.Clerk.user;
+// Update nav with username from session
+(function() {
+  const session = getSession();
+  if (!session) return;
   const signInBtn = document.getElementById('nav-sign-in-btn');
   const userBtn = document.getElementById('nav-user-btn');
   const nameEl = document.getElementById('nav-user-name');
   const initialsEl = document.getElementById('nav-initials');
   const ddName = document.getElementById('dd-name');
   const ddEmail = document.getElementById('dd-email');
+  if (signInBtn) signInBtn.classList.add('hidden');
+  if (userBtn) userBtn.classList.add('visible');
+  const u = session.username || 'Member';
+  if (nameEl) nameEl.textContent = u;
+  if (initialsEl) initialsEl.textContent = u[0].toUpperCase();
+  if (ddName) ddName.textContent = u;
+  if (ddEmail) ddEmail.textContent = 'EFED Member';
+})();
 
-  if (user) {
-    signInBtn.classList.add('hidden');
-    userBtn.classList.add('visible');
-
-    const firstName = user.firstName || '';
-    const lastName = user.lastName || '';
-    const fullName = [firstName, lastName].filter(Boolean).join(' ') || user.username || 'Member';
-    const email = user.primaryEmailAddress?.emailAddress || '';
-
-    nameEl.textContent = firstName || 'Member';
-    ddName.textContent = fullName;
-    ddEmail.textContent = email;
-
-    // Set initials
-    const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || (email[0] || '?').toUpperCase();
-    initialsEl.textContent = initials;
-
-    // Use profile image if available
-    if (user.imageUrl) {
-      const avatarWrap = document.getElementById('nav-avatar-wrap');
-      avatarWrap.innerHTML = `<img class="nav-avatar" src="${user.imageUrl}" alt="${fullName}">`;
-    }
-  } else {
-    signInBtn.classList.remove('hidden');
-    userBtn.classList.remove('visible');
-  }
+function handleSignOut() {
+  localStorage.removeItem('efed_session');
+  window.location.replace('auth.html');
 }
 
-// ── AUTH MODAL ──
-function openAuth(tab = 'sign-in') {
-  document.getElementById('auth-bg').classList.add('open');
-  switchTab(tab);
-  document.body.style.overflow = 'hidden';
-}
-
-function closeAuth() {
-  document.getElementById('auth-bg').classList.remove('open');
-  document.body.style.overflow = '';
-  clearErrors();
-}
-
-function handleAuthBgClick(e) {
-  if (e.target === document.getElementById('auth-bg')) closeAuth();
-}
-
-function switchTab(tab) {
-  const isSignIn = tab === 'sign-in';
-  document.getElementById('tab-signin').classList.toggle('active', isSignIn);
-  document.getElementById('tab-signup').classList.toggle('active', !isSignIn);
-  document.getElementById('panel-sign-in').classList.toggle('active', isSignIn);
-  document.getElementById('panel-sign-up').classList.toggle('active', !isSignIn);
-  document.getElementById('auth-eyebrow').textContent = isSignIn ? 'Member Access' : 'Join the Hub';
-  clearErrors();
-}
-
-function clearErrors() {
-  ['signin-error','signup-error'].forEach(id => {
-    const el = document.getElementById(id);
-    el.classList.remove('visible');
-    el.textContent = '';
-  });
-  document.getElementById('signup-success').classList.remove('visible');
-}
-
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.classList.add('visible');
-}
-
-function setLoading(btnId, loading, label = 'Sign In') {
-  const btn = document.getElementById(btnId);
-  btn.disabled = loading;
-  btn.textContent = loading ? 'Please wait…' : label;
-}
-
-async function handleSignIn() {
-  if (!clerkReady) return showError('signin-error', 'Auth service not ready. Please refresh.');
-  const email = document.getElementById('signin-email').value.trim();
-  const password = document.getElementById('signin-password').value;
-  if (!email || !password) return showError('signin-error', 'Please fill in all fields.');
-  clearErrors();
-  setLoading('signin-btn', true, 'Sign In');
-  try {
-    await window.Clerk.client.signIn.create({ identifier: email, password });
-    await window.Clerk.setActive({ session: window.Clerk.client.signIn.createdSessionId });
-    closeAuth();
-    updateAuthUI();
-  } catch (err) {
-    showError('signin-error', err.errors?.[0]?.longMessage || err.message || 'Sign in failed. Check your credentials.');
-  } finally {
-    setLoading('signin-btn', false, 'Sign In');
-  }
-}
-
-async function handleSignUp() {
-  if (!clerkReady) return showError('signup-error', 'Auth service not ready. Please refresh.');
-  const firstName = document.getElementById('signup-firstname').value.trim();
-  const lastName = document.getElementById('signup-lastname').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const password = document.getElementById('signup-password').value;
-  if (!email || !password) return showError('signup-error', 'Email and password are required.');
-  clearErrors();
-  setLoading('signup-btn', true, 'Create Account');
-  try {
-    const res = await window.Clerk.client.signUp.create({ firstName, lastName, emailAddress: email, password });
-    if (res.status === 'complete') {
-      await window.Clerk.setActive({ session: res.createdSessionId });
-      closeAuth();
-      updateAuthUI();
-    } else {
-      // Email verification needed
-      await res.prepareEmailAddressVerification({ strategy: 'email_link', redirectUrl: window.location.href });
-      document.getElementById('signup-success').classList.add('visible');
-      document.getElementById('signup-btn').style.display = 'none';
-    }
-  } catch (err) {
-    showError('signup-error', err.errors?.[0]?.longMessage || err.message || 'Could not create account. Please try again.');
-  } finally {
-    setLoading('signup-btn', false, 'Create Account');
-  }
-}
-
-async function handleXAuth() {
-  if (!clerkReady) return;
-  try {
-    await window.Clerk.client.signIn.authenticateWithRedirect({
-      strategy: 'oauth_x',
-      redirectUrl: window.location.href,
-      redirectUrlComplete: window.location.href,
-    });
-  } catch (err) {
-    showError('signin-error', 'X sign-in failed. Please try another method.');
-    showError('signup-error', 'X sign-in failed. Please try another method.');
-  }
-}
-
-async function handleSignOut() {
-  if (!clerkReady) return;
-  toggleDropdown(true);
-  await window.Clerk.signOut();
-  updateAuthUI();
-}
-
-// ── USER DROPDOWN ──
 function toggleDropdown(forceClose = false) {
   const dd = document.getElementById('user-dropdown');
+  if (!dd) return;
   if (forceClose) { dd.classList.remove('open'); return; }
   dd.classList.toggle('open');
 }
@@ -2159,8 +1992,6 @@ function toggleDropdown(forceClose = false) {
 document.addEventListener('click', (e) => {
   const wrap = document.getElementById('nav-user-wrap');
   const dd = document.getElementById('user-dropdown');
-  if (wrap && !wrap.contains(e.target)) dd.classList.remove('open');
+  if (wrap && dd && !wrap.contains(e.target)) dd.classList.remove('open');
 });
 </script>
-
-

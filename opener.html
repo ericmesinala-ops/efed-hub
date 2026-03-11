@@ -258,7 +258,7 @@
 
   function lerp(a, b, t) { return a + (b - a) * t; }
 
-  let redirectUrl = 'login.html';
+  let redirectUrl = 'https://efed-gray.vercel.app/login.html';
 
   // If already signed in, skip login and go straight to hub
   (async function() {
@@ -272,7 +272,7 @@
     try {
       await waitForClerk();
       await window.Clerk.load();
-      if (window.Clerk.user) redirectUrl = 'index.html';
+      if (window.Clerk.user) redirectUrl = 'https://efed-gray.vercel.app/index.html';
     } catch(e) {}
   })();
 

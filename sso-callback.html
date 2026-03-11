@@ -29,22 +29,22 @@
     try {
       await waitForClerk();
       await window.Clerk.load({
-        afterSignInUrl: 'index.html',
-        afterSignUpUrl: 'index.html',
+        afterSignInUrl: 'https://efed-gray.vercel.app/index.html',
+        afterSignUpUrl: 'https://efed-gray.vercel.app/index.html',
       });
       if (window.Clerk.user) {
-        window.location.replace('index.html');
+        window.location.replace('https://efed-gray.vercel.app/index.html');
       } else {
         try {
           await window.Clerk.handleRedirectCallback();
-          window.location.replace('index.html');
+          window.location.replace('https://efed-gray.vercel.app/index.html');
         } catch(e) {
-          window.location.replace('login.html');
+          window.location.replace('https://efed-gray.vercel.app/login.html');
         }
       }
     } catch(e) {
       console.error(e);
-      window.location.replace('login.html');
+      window.location.replace('https://efed-gray.vercel.app/login.html');
     }
   })();
 </script>

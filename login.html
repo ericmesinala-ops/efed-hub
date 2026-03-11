@@ -296,7 +296,7 @@
 </div>
 
 <script>
-  const HUB_URL = 'index.html'; // change to your full Vercel URL if needed
+  const HUB_URL = 'https://efed-gray.vercel.app/index.html';
 
   let clerkReady = false;
 
@@ -307,7 +307,7 @@
 
       // Already signed in — go straight to hub
       if (window.Clerk.user) {
-        window.location.replace('index.html');
+        window.location.replace('https://efed-gray.vercel.app/index.html');
         return;
       }
     } catch (e) {
@@ -325,8 +325,8 @@
     try {
       await window.Clerk.client.signIn.authenticateWithRedirect({
         strategy: 'oauth_x',
-        redirectUrl: 'sso-callback.html',
-        redirectUrlComplete: 'index.html',
+        redirectUrl: 'https://efed-gray.vercel.app/sso-callback.html',
+        redirectUrlComplete: 'https://efed-gray.vercel.app/index.html',
       });
     } catch (err) {
       showError(err.errors?.[0]?.longMessage || 'X sign-in failed. Please try again.');

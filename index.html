@@ -37,7 +37,7 @@
     await waitForClerk();
     await window.Clerk.load();
     if (!window.Clerk.user) {
-      window.location.replace('login.html');
+      window.location.replace('https://efed-gray.vercel.app/login.html');
     } else {
       document.getElementById('auth-guard-overlay').remove();
     }

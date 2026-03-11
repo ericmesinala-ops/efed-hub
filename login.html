@@ -307,7 +307,7 @@
 
       // Already signed in — go straight to hub
       if (window.Clerk.user) {
-        window.location.replace('/index.html');
+        window.location.replace('index.html');
         return;
       }
     } catch (e) {
@@ -325,8 +325,8 @@
     try {
       await window.Clerk.client.signIn.authenticateWithRedirect({
         strategy: 'oauth_x',
-        redirectUrl: '/sso-callback.html',
-        redirectUrlComplete: '/index.html',
+        redirectUrl: 'sso-callback.html',
+        redirectUrlComplete: 'index.html',
       });
     } catch (err) {
       showError(err.errors?.[0]?.longMessage || 'X sign-in failed. Please try again.');

@@ -10,52 +10,43 @@
 <script async crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #07070a;
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh;
-    font-family: 'DM Sans', sans-serif;
-    color: #e8e8e8;
-  }
-  .wrap { text-align: center; }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 2px solid rgba(200,168,75,.2);
-    border-top-color: #c8a84b;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    margin: 0 auto 20px;
-  }
+  body { background: #07070a; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .spinner { width: 36px; height: 36px; border: 2px solid rgba(200,168,75,.2); border-top-color: #c8a84b; border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  p { font-size: .75rem; letter-spacing: 2px; text-transform: uppercase; color: #5a5a6a; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="spinner"></div>
-  <p>Signing you in…</p>
-</div>
+<div class="spinner"></div>
 <script>
-  window.addEventListener('load', async () => {
-    try {
-      await window.Clerk.load();
-
-      // Handle the OAuth callback — this finalizes the session
-      const result = await window.Clerk.handleRedirectCallback({
-        redirectUrl: '/index.html',
+  (async function() {
+    function waitForClerk() {
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (window.Clerk) { clearInterval(interval); resolve(); }
+        }, 50);
       });
-
-      // If handleRedirectCallback doesn't auto-navigate, do it manually
-      if (window.Clerk.user) {
-        window.location.replace('/index.html');
-      } else {
-        window.location.replace('/login.html');
-      }
-    } catch (e) {
-      console.error('SSO callback error:', e);
-      window.location.replace('/login.html');
     }
-  });
+    try {
+      await waitForClerk();
+      await window.Clerk.load({
+        afterSignInUrl: 'index.html',
+        afterSignUpUrl: 'index.html',
+      });
+      if (window.Clerk.user) {
+        window.location.replace('index.html');
+      } else {
+        try {
+          await window.Clerk.handleRedirectCallback();
+          window.location.replace('index.html');
+        } catch(e) {
+          window.location.replace('login.html');
+        }
+      }
+    } catch(e) {
+      console.error(e);
+      window.location.replace('login.html');
+    }
+  })();
 </script>
 </body>
 </html>

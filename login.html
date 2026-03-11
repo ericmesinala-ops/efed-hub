@@ -305,17 +305,11 @@
       await window.Clerk.load();
       clerkReady = true;
 
-      // If already signed in, show the signed-in state
+      // Already signed in — go straight to hub
       if (window.Clerk.user) {
-        showSignedIn(window.Clerk.user);
+        window.location.replace('/index.html');
+        return;
       }
-
-      // Handle OAuth redirect completion
-      const url = new URL(window.location.href);
-      if (url.searchParams.get('__clerk_status') === 'verified' || window.Clerk.user) {
-        if (window.Clerk.user) showSignedIn(window.Clerk.user);
-      }
-
     } catch (e) {
       showError('Authentication service unavailable. Please try again later.');
       console.warn('Clerk failed:', e);
@@ -331,7 +325,7 @@
     try {
       await window.Clerk.client.signIn.authenticateWithRedirect({
         strategy: 'oauth_x',
-        redirectUrl: '/login.html',
+        redirectUrl: '/sso-callback.html',
         redirectUrlComplete: '/index.html',
       });
     } catch (err) {

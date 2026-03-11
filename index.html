@@ -12,15 +12,8 @@
 <script>
   // Auth guard — redirect to login if not signed in
   (async function() {
-    // Wait for Clerk to be available
     function waitForClerk() {
       return new Promise(resolve => {
-        if (window.Clerk) return resolve();
-        const observer = new MutationObserver(() => {
-          if (window.Clerk) { observer.disconnect(); resolve(); }
-        });
-        observer.observe(document.head, { childList: true, subtree: true });
-        // Fallback polling
         const interval = setInterval(() => {
           if (window.Clerk) { clearInterval(interval); resolve(); }
         }, 50);
@@ -29,7 +22,7 @@
     await waitForClerk();
     await window.Clerk.load();
     if (!window.Clerk.user) {
-      window.location.replace('login.html');
+      window.location.replace('/login.html');
     }
   })();
 </script>

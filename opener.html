@@ -6,9 +6,7 @@
 <title>EFED Streaming Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600&display=swap" rel="stylesheet">
 <script>
-  window.__clerk_publishable_key = 'pk_test_Z29yZ2VvdXMtYWtpdGEtODYuY2xlcmsuYWNjb3VudHMuZGV2JA';
 </script>
-<script async crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -258,23 +256,10 @@
 
   function lerp(a, b, t) { return a + (b - a) * t; }
 
-  let redirectUrl = 'https://efed-gray.vercel.app/login.html';
+  let redirectUrl = 'auth.html';
 
   // If already signed in, skip login and go straight to hub
   (async function() {
-    function waitForClerk() {
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (window.Clerk) { clearInterval(interval); resolve(); }
-        }, 50);
-      });
-    }
-    try {
-      await waitForClerk();
-      await window.Clerk.load();
-      if (window.Clerk.user) redirectUrl = 'https://efed-gray.vercel.app/index.html';
-    } catch(e) {}
-  })();
 
   async function runOpener() {
     const curtain   = document.getElementById('curtain');

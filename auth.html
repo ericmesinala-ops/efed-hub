@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#c0000e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EFED Hub">
+<link rel="apple-touch-icon" href="/efed-hub-icon.svg">
 <title>EFED Streaming Hub — Access</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
 <style>
@@ -49,7 +56,7 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
 
 .logo { display:flex; flex-direction:column; align-items:center; margin-bottom:40px; animation:fadeUp .6s ease both; }
 .logo-eyebrow { font-size:.55rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; font-weight:300; font-style:italic; margin-bottom:6px; }
-.logo-main { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.8rem,8vw,5rem); letter-spacing:8px; color:#fff; line-height:1; filter:drop-shadow(0 0 30px rgba(192,0,14,.3)); }
+.logo-main { font-family:'Bebas Neue',sans-serif; font-size:clamp(1.8rem,7vw,3.6rem); letter-spacing:6px; color:#fff; line-height:1; filter:drop-shadow(0 0 30px rgba(192,0,14,.3)); white-space:nowrap; }
 .logo-main em { color:var(--gold); font-style:normal; }
 .rule { width:clamp(60px,15vw,120px); height:1px; background:linear-gradient(to right,transparent,var(--gold),transparent); margin:0 auto 40px; animation:fadeUp .6s .1s ease both; }
 
@@ -63,14 +70,24 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
 }
 
 /* Tabs */
-.tabs { display:flex; gap:0; margin-bottom:32px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.tabs {
+  display:flex; gap:0; margin-bottom:32px;
+  border:1px solid rgba(255,255,255,.12); border-radius:40px; overflow:hidden;
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
 .tab {
   flex:1; padding:10px; background:transparent; border:none;
   font-family:'DM Sans',sans-serif; font-size:.7rem; font-weight:600;
   letter-spacing:1.5px; text-transform:uppercase; color:var(--muted);
   cursor:pointer; transition:all .2s;
 }
-.tab.active { background:rgba(255,255,255,.06); color:#fff; }
+.tab.active {
+  background: rgba(255,255,255,.1);
+  color:#fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+}
 
 .panel { display:none; }
 .panel.active { display:block; }
@@ -87,20 +104,31 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
   border-radius:8px; color:#fff; font-family:'DM Sans',sans-serif; font-size:.85rem;
   outline:none; transition:border-color .2s, background .2s;
 }
-.field input:focus { border-color:rgba(200,168,75,.5); background:rgba(255,255,255,.08); }
+.field input:focus { border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.08); }
 .field input::placeholder { color:var(--muted); }
 
 /* Buttons */
 .btn-primary {
   width:100%; padding:13px; margin-top:8px;
-  background:var(--gold); border:none; border-radius:10px;
-  color:#000; font-family:'DM Sans',sans-serif;
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius:40px;
+  color: rgba(255,255,255,.95);
+  font-family:'DM Sans',sans-serif;
   font-size:.8rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
-  cursor:pointer; transition:opacity .2s, transform .15s;
+  cursor:pointer;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 2px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15);
+  transition: background .2s, box-shadow .2s, transform .15s;
 }
-.btn-primary:hover { opacity:.87; transform:translateY(-1px); }
+.btn-primary:hover {
+  background: rgba(255,255,255,.15);
+  box-shadow: 0 4px 22px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
+  transform:translateY(-1px);
+}
 .btn-primary:active { transform:translateY(0); }
-.btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.btn-primary:disabled { opacity:.35; cursor:not-allowed; transform:none; }
 
 /* Error / success */
 .msg { display:none; margin-bottom:16px; padding:10px 14px; border-radius:8px; font-size:.75rem; line-height:1.5; text-align:center; }
@@ -126,11 +154,18 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
 .invite-used { font-family:monospace; font-size:.8rem; color:var(--muted); letter-spacing:2px; text-decoration:line-through; }
 .copy-btn {
   font-size:.58rem; letter-spacing:1px; text-transform:uppercase; font-weight:700;
-  color:var(--gold); background:none; border:none; cursor:pointer;
-  font-family:'DM Sans',sans-serif; transition:opacity .2s;
+  color: rgba(255,255,255,.8);
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px; padding: 4px 10px;
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+  transition: background .2s, box-shadow .2s;
 }
-.copy-btn:hover { opacity:.6; }
-.copy-btn.copied { color:#4caf8a; }
+.copy-btn:hover { background: rgba(255,255,255,.13); box-shadow: 0 2px 8px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15); }
+.copy-btn.copied { color:#4caf8a; border-color: rgba(76,175,138,.3); background: rgba(76,175,138,.08); }
 
 .signout-btn {
   margin-top:16px; font-size:.65rem; color:var(--muted); background:none; border:none;
@@ -170,18 +205,33 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
     <!-- AUTH VIEW -->
     <div id="view-auth">
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('login')">Sign In</button>
-        <button class="tab" onclick="switchTab('register')">Join</button>
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="tab" id="tab-register" onclick="switchTab('register')">Join</button>
       </div>
 
       <!-- LOGIN PANEL -->
       <div class="panel active" id="panel-login">
         <div class="panel-title">Welcome Back</div>
-        <p class="panel-sub">Sign in to access exclusive EFED content.</p>
+        <p class="panel-sub">Sign in with your social handle and password.</p>
         <div class="msg error" id="login-err"></div>
-        <div class="field"><label>Username</label><input type="text" id="login-user" placeholder="your username" autocomplete="username"></div>
-        <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+        <div class="field">
+          <label>X or Instagram Handle</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;font-weight:700;">@</span>
+            <input type="text" id="login-user" placeholder="yourhandle" autocomplete="username" style="width:100%;padding:11px 14px 11px 28px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s,background .2s;">
+          </div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div style="position:relative;">
+            <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding:11px 44px 11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s,background .2s;">
+            <button type="button" onclick="togglePass('login-pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" aria-label="Show password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
         <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In</button>
+        <p style="text-align:center;margin-top:14px;"><button onclick="switchTab('forgot')" style="background:none;border:none;color:var(--muted);font-size:.68rem;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.5px;transition:color .2s;" onmouseover="this.style.color='rgba(255,255,255,.5)'" onmouseout="this.style.color='var(--muted)'">Forgot password?</button></p>
       </div>
 
       <!-- REGISTER PANEL -->
@@ -190,10 +240,87 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
         <p class="panel-sub">You need an invite code to get in.</p>
         <div class="msg error" id="reg-err"></div>
         <div class="msg success" id="reg-ok"></div>
-        <div class="field"><label>Invite Code</label><input type="text" id="reg-invite" placeholder="XXXX-XXXX" autocomplete="off" style="text-transform:uppercase;"></div>
-        <div class="field"><label>Username</label><input type="text" id="reg-user" placeholder="choose a username" autocomplete="username"></div>
-        <div class="field"><label>Password</label><input type="password" id="reg-pass" placeholder="••••••••" autocomplete="new-password"></div>
+        <div class="field"><label>Invite Code</label><input type="text" id="reg-invite" placeholder="EFED-XXXX" autocomplete="off" style="text-transform:uppercase;"></div>
+        <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email"></div>
+
+        <!-- CAW Name -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div class="field" style="margin-bottom:0;">
+            <label>CAW First Name</label>
+            <input type="text" id="reg-caw-first" placeholder="e.g. Derrick" autocomplete="off" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>CAW Last Name</label>
+            <input type="text" id="reg-caw-last" placeholder="e.g. Maximus" autocomplete="off" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div style="position:relative;">
+            <input type="password" id="reg-pass" placeholder="min 6 characters" autocomplete="new-password" style="width:100%;padding:11px 44px 11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s,background .2s;">
+            <button type="button" onclick="togglePass('reg-pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" aria-label="Show password">
+              <svg id="eye-reg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Social media — at least one required -->
+        <div style="font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px;margin-top:4px;">Social Media <span style="color:var(--red);font-size:.55rem;">(at least one required)</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div class="field" style="margin-bottom:0;">
+            <label>X (Twitter)</label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;font-weight:700;">@</span>
+              <input type="text" id="reg-x" placeholder="handle" autocomplete="off" style="width:100%;padding:11px 14px 11px 26px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Instagram</label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;font-weight:700;">@</span>
+              <input type="text" id="reg-ig" placeholder="handle" autocomplete="off" style="width:100%;padding:11px 14px 11px 26px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- eFed owner question -->
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+          <div style="font-size:.72rem;font-weight:600;color:var(--text);margin-bottom:10px;">Do you own an eFed?</div>
+          <div style="display:flex;gap:16px;margin-bottom:0;" id="efed-radio-wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.78rem;color:var(--muted);">
+              <input type="radio" name="efed-owner" id="efed-no" value="no" checked onchange="toggleEfedFields()" style="accent-color:var(--red);"> No
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.78rem;color:var(--muted);">
+              <input type="radio" name="efed-owner" id="efed-yes" value="yes" onchange="toggleEfedFields()" style="accent-color:var(--red);"> Yes
+            </label>
+          </div>
+          <div id="efed-fields" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+            <div class="field" style="margin-bottom:10px;">
+              <label>Promotion Name</label>
+              <input type="text" id="reg-promo-name" placeholder="e.g. First Strike Wrestling" autocomplete="off" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>YouTube Channel</label>
+              <input type="url" id="reg-yt" placeholder="https://youtube.com/@yourchannel" autocomplete="off" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;">
+            </div>
+          </div>
+        </div>
+
         <button class="btn-primary" id="reg-btn" onclick="doRegister()">Create Account</button>
+      </div>
+
+      <!-- FORGOT PASSWORD PANEL -->
+      <div class="panel" id="panel-forgot">
+        <div class="panel-title">Reset Password</div>
+        <p class="panel-sub" id="forgot-sub">Enter your email and we'll send you a reset link.</p>
+        <div class="msg error" id="forgot-err"></div>
+        <div class="msg success" id="forgot-ok"></div>
+        <div id="forgot-step1">
+          <div class="field"><label>Email</label><input type="email" id="forgot-user" placeholder="your@email.com" autocomplete="email"></div>
+          <button class="btn-primary" id="forgot-btn1" onclick="doForgotReset()">Send Reset Link</button>
+        </div>
+        <p style="text-align:center;margin-top:14px;"><button onclick="switchTab('login')" style="background:none;border:none;color:var(--muted);font-size:.68rem;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.5px;transition:color .2s;" onmouseover="this.style.color='rgba(255,255,255,.5)'" onmouseout="this.style.color='var(--muted)'">← Back to Sign In</button></p>
       </div>
     </div>
 
@@ -202,13 +329,25 @@ html, body { width:100%; min-height:100vh; background:var(--bg); font-family:'DM
 
 <script>
 // ── CONFIG ──
-// Replace these with your JSONBin details after setup
-const JSONBIN_BIN_ID = '69b1c65caa77b81da9d84234';
-const JSONBIN_API_KEY = '$2a$10$t3Exa5qDTGK.3u7NiWeos.y4wFyko086XvkE//4hDy53cZu/uHYzW';
-const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+const SUPABASE_URL = 'https://osbarvhklizidsffytye.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zYmFydmhrbGl6aWRzZmZ5dHllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNjQ4MzksImV4cCI6MjA4ODg0MDgzOX0.c9EDHCFY50VzSTmz0EUTq1XrX0AvJdynFPxIWT5K7JM';
+const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 
-// ── SEED INVITE CODES (first 5, generated at build time) ──
-const SEED_CODES = ['EFED-F7X2', 'EFED-K9M4', 'EFED-R3P8', 'EFED-W6T1', 'EFED-B5N7'];
+async function sbGet(table, filters = '') {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}`, { headers: SB_HEADERS });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbInsert(table, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(data) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbUpdate(table, data, filters) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}`, { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(data) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 
 // ── HELPERS ──
 function genCode() {
@@ -218,30 +357,36 @@ function genCode() {
   return c;
 }
 
+async function genUniqueCode() {
+  // Keep generating until we get one that doesn't exist in the DB
+  let attempts = 0;
+  while (attempts < 20) {
+    const code = genCode();
+    const existing = await sbGet('invites', `code=eq.${encodeURIComponent(code)}`);
+    if (!existing.length) return code;
+    attempts++;
+  }
+  throw new Error('Could not generate a unique invite code. Try again.');
+}
+
 function hash(str) {
-  // Simple non-crypto hash — fine for a fan site
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
   return h.toString(36);
 }
 
-async function getDB() {
-  const r = await fetch(BIN_URL + '/latest', {
-    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-  });
-  const j = await r.json();
-  return j.record;
+// ── PASSWORD TOGGLE ──
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  btn.style.color = isHidden ? 'var(--text)' : 'var(--muted)';
+  btn.innerHTML = isHidden
+    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
 }
 
-async function setDB(data) {
-  await fetch(BIN_URL, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-    body: JSON.stringify(data)
-  });
-}
 
-// ── SESSION ──
 function getSession() {
   try { return JSON.parse(localStorage.getItem('efed_session')); } catch { return null; }
 }
@@ -250,26 +395,26 @@ function clearSession() { localStorage.removeItem('efed_session'); }
 
 // ── UI ──
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'?0:1)===i));
-  document.getElementById('panel-login').classList.toggle('active', tab==='login');
-  document.getElementById('panel-register').classList.toggle('active', tab==='register');
+  const tabs = { login: 0, register: 1 };
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.querySelector('.tabs').style.display = tab === 'forgot' ? 'none' : 'flex';
+  document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+  document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+  document.getElementById('panel-forgot').classList.toggle('active', tab === 'forgot');
   clearMsgs();
+  if (tab === 'forgot') {
+    document.getElementById('forgot-step1').style.display = 'block';
+    document.getElementById('forgot-sub').textContent = 'Enter your email and we\'ll send you a reset link.';
+    document.getElementById('forgot-user').value = '';
+  }
 }
 
 function clearMsgs() {
   document.querySelectorAll('.msg').forEach(el => { el.classList.remove('visible'); el.textContent=''; });
 }
-
-function showErr(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.classList.add('visible');
-}
-
-function showOk(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.classList.add('visible');
-}
-
+function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('visible'); }
+function showOk(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('visible'); }
 function setLoading(btnId, loading) {
   document.getElementById(btnId).disabled = loading;
   document.getElementById(btnId).textContent = loading ? 'Please wait…' : (btnId === 'login-btn' ? 'Sign In' : 'Create Account');
@@ -278,19 +423,22 @@ function setLoading(btnId, loading) {
 // ── LOGIN ──
 async function doLogin() {
   clearMsgs();
-  const user = document.getElementById('login-user').value.trim().toLowerCase();
+  const handle = document.getElementById('login-user').value.trim().replace('@','').toLowerCase();
   const pass = document.getElementById('login-pass').value;
-  if (!user || !pass) return showErr('login-err', 'Please fill in all fields.');
+  if (!handle || !pass) return showErr('login-err', 'Please fill in all fields.');
   setLoading('login-btn', true);
   try {
-    const db = await getDB();
-    const account = db.users?.[user];
-    if (!account) return showErr('login-err', 'Username not found.');
-    if (account.passwordHash !== hash(pass)) return showErr('login-err', 'Incorrect password.');
-    setSession({ username: user });
-    showLoggedIn(user, db);
+    // Find by X handle or Instagram handle
+    let users = await sbGet('users', `x_handle=eq.${encodeURIComponent(handle)}`);
+    if (!users.length) users = await sbGet('users', `ig_handle=eq.${encodeURIComponent(handle)}`);
+    if (!users.length) return showErr('login-err', 'No account found with that handle.');
+    const account = users[0];
+    if (account.password_hash !== hash(pass)) return showErr('login-err', 'Incorrect password.');
+    if (account.banned) return showErr('login-err', 'This account has been suspended from the EFED Streaming Hub.');
+    setSession({ username: account.username, displayName: account.display_name || account.username });
+    window.location.replace('index.html');
   } catch(e) {
-    showErr('login-err', 'Could not connect. Check your setup.');
+    showErr('login-err', 'Could not connect. Try again.');
     console.error(e);
   } finally {
     setLoading('login-btn', false);
@@ -298,78 +446,146 @@ async function doLogin() {
 }
 
 // ── REGISTER ──
+function toggleEfedFields() {
+  const isYes = document.getElementById('efed-yes').checked;
+  document.getElementById('efed-fields').style.display = isYes ? 'block' : 'none';
+}
+
 async function doRegister() {
   clearMsgs();
   const invite = document.getElementById('reg-invite').value.trim().toUpperCase();
-  const user = document.getElementById('reg-user').value.trim().toLowerCase();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const cawFirst = document.getElementById('reg-caw-first').value.trim();
+  const cawLast = document.getElementById('reg-caw-last').value.trim();
   const pass = document.getElementById('reg-pass').value;
-  if (!invite || !user || !pass) return showErr('reg-err', 'All fields are required.');
-  if (user.length < 3) return showErr('reg-err', 'Username must be at least 3 characters.');
+  const xHandle = document.getElementById('reg-x').value.trim().replace('@','').toLowerCase();
+  const igHandle = document.getElementById('reg-ig').value.trim().replace('@','').toLowerCase();
+  const isEfedOwner = document.getElementById('efed-yes').checked;
+  const promoName = isEfedOwner ? document.getElementById('reg-promo-name').value.trim() : '';
+  const ytChannel = isEfedOwner ? document.getElementById('reg-yt').value.trim() : '';
+
+  // Build username from CAW name — derrick_maximus
+  const cawName = (cawFirst + ' ' + cawLast).trim();
+  const user = (cawFirst + '_' + cawLast).toLowerCase().replace(/[^a-z0-9_]/g, '').substring(0, 30);
+
+  if (!invite || !email || !cawFirst || !cawLast || !pass) return showErr('reg-err', 'All fields are required.');
+  if (!email.includes('@')) return showErr('reg-err', 'Please enter a valid email.');
+  if (cawFirst.length < 2 || cawLast.length < 2) return showErr('reg-err', 'Please enter your full CAW name.');
   if (pass.length < 6) return showErr('reg-err', 'Password must be at least 6 characters.');
-  if (!/^[a-z0-9_]+$/.test(user)) return showErr('reg-err', 'Username: letters, numbers, underscores only.');
+  if (!xHandle && !igHandle) return showErr('reg-err', 'Please provide at least one social media handle (X or Instagram).');
+  if (isEfedOwner && !promoName) return showErr('reg-err', 'Please enter your promotion name.');
+
   setLoading('reg-btn', true);
   try {
-    const db = await getDB();
+    const invites = await sbGet('invites', `code=eq.${encodeURIComponent(invite)}`);
+    if (!invites.length) return showErr('reg-err', 'Invalid invite code.');
+    if (invites[0].used) return showErr('reg-err', 'This invite code has already been used.');
+    const existing = await sbGet('users', `username=eq.${encodeURIComponent(user)}`);
+    if (existing.length) return showErr('reg-err', 'Username already taken. Try another.');
+    const existingEmail = await sbGet('users', `email=eq.${encodeURIComponent(email)}`);
+    if (existingEmail.length) return showErr('reg-err', 'Email already registered.');
 
-    // Check invite code
-    const inviteData = db.invites?.[invite];
-    if (!inviteData) return showErr('reg-err', 'Invalid invite code.');
-    if (inviteData.used) return showErr('reg-err', 'This invite code has already been used.');
+    await sbInsert('users', {
+      username: user,
+      password_hash: hash(pass),
+      email,
+      display_name: cawName,
+      joined_at: Date.now(),
+      x_handle: xHandle || null,
+      ig_handle: igHandle || null,
+      is_efed_owner: isEfedOwner,
+      promo_name: promoName || null,
+      yt_channel: ytChannel || null,
+      role: 'member'
+    });
 
-    // Check username taken
-    if (db.users?.[user]) return showErr('reg-err', 'Username already taken. Try another.');
+    await sbUpdate('invites', { used: true, used_by: user }, `code=eq.${encodeURIComponent(invite)}`);
 
-    // Generate 5 invite codes for this new user
-    const myCodes = {};
-    for (let i = 0; i < 5; i++) {
-      const c = genCode();
-      myCodes[c] = { used: false, usedBy: null };
+    // Notify the invite code creator
+    const inviteCreator = invites[0].created_by;
+    if (inviteCreator) {
+      await sbInsert('notifications', {
+        username: inviteCreator,
+        type: 'invite',
+        message: `🎟️ Your invite code ${invite} was used by ${cawName} — welcome them to the Hub!`,
+        video_url: null,
+        read: false,
+        created_at: Date.now()
+      });
     }
 
-    // Write to DB
-    db.users[user] = { passwordHash: hash(pass), invites: Object.keys(myCodes), joinedAt: Date.now() };
-    db.invites[invite].used = true;
-    db.invites[invite].usedBy = user;
-    Object.assign(db.invites, myCodes);
-    await setDB(db);
+    const newCodes = [];
+    for (let i = 0; i < 2; i++) {
+      try {
+        const code = await genUniqueCode();
+        newCodes.push({ code, used: false, used_by: null, created_by: user });
+      } catch(e) { console.warn('Skipped a code generation:', e); }
+    }
+    if (newCodes.length > 0) await sbInsert('invites', newCodes);
 
-    setSession({ username: user });
+    setSession({ username: user, displayName: cawName });
     showOk('reg-ok', 'Account created! Welcome to the Hub.');
-    setTimeout(() => showLoggedIn(user, db), 800);
+    setTimeout(() => window.location.replace('index.html'), 800);
   } catch(e) {
-    showErr('reg-err', 'Could not connect. Check your setup.');
+    showErr('reg-err', 'Could not connect. Try again.');
     console.error(e);
   } finally {
     setLoading('reg-btn', false);
   }
 }
 
+// ── FORGOT PASSWORD — Supabase native email reset ──
+async function doForgotReset() {
+  clearMsgs();
+  const email = document.getElementById('forgot-user').value.trim().toLowerCase();
+  if (!email || !email.includes('@')) return showErr('forgot-err', 'Please enter a valid email.');
+  document.getElementById('forgot-btn1').disabled = true;
+  document.getElementById('forgot-btn1').textContent = 'Sending…';
+  try {
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    // Always show success — don't reveal if email exists
+    showOk('forgot-ok', 'If that email is registered, a reset link is on its way. Check your inbox.');
+    document.getElementById('forgot-step1').style.display = 'none';
+  } catch(e) {
+    showErr('forgot-err', 'Could not send. Try again.');
+  } finally {
+    document.getElementById('forgot-btn1').disabled = false;
+    document.getElementById('forgot-btn1').textContent = 'Send Reset Link';
+  }
+}
+
 // ── SHOW LOGGED IN VIEW ──
-function showLoggedIn(username, db) {
+async function showLoggedIn(username) {
   document.getElementById('view-auth').style.display = 'none';
   const hub = document.getElementById('view-hub');
   hub.classList.add('active');
   document.getElementById('hub-name').textContent = username.toUpperCase();
 
-  const userCodes = db.users?.[username]?.invites || [];
   const list = document.getElementById('invite-list');
-  list.innerHTML = '';
+  list.innerHTML = '<p style="font-size:.72rem;color:var(--muted)">Loading codes…</p>';
 
-  if (userCodes.length === 0) {
-    list.innerHTML = '<p style="font-size:.72rem;color:var(--muted)">No invite codes yet.</p>';
-    return;
+  try {
+    const codes = await sbGet('invites', `created_by=eq.${encodeURIComponent(username)}&order=code.asc`);
+    list.innerHTML = '';
+    if (!codes.length) {
+      list.innerHTML = '<p style="font-size:.72rem;color:var(--muted)">No invite codes yet.</p>';
+      return;
+    }
+    codes.forEach(invite => {
+      const row = document.createElement('div');
+      row.className = 'invite-row';
+      row.innerHTML = invite.used
+        ? `<span class="invite-used">${invite.code}</span><span style="font-size:.6rem;color:var(--muted)">Used by ${invite.used_by || '?'}</span>`
+        : `<span class="invite-code">${invite.code}</span><button class="copy-btn" onclick="copyCode(this,'${invite.code}')">Copy</button>`;
+      list.appendChild(row);
+    });
+  } catch(e) {
+    list.innerHTML = '<p style="font-size:.72rem;color:#ff6b6b">Could not load codes.</p>';
   }
-
-  userCodes.forEach(code => {
-    const info = db.invites?.[code];
-    const used = info?.used;
-    const row = document.createElement('div');
-    row.className = 'invite-row';
-    row.innerHTML = used
-      ? `<span class="invite-used">${code}</span><span style="font-size:.6rem;color:var(--muted)">Used by ${info.usedBy || '?'}</span>`
-      : `<span class="invite-code">${code}</span><button class="copy-btn" onclick="copyCode(this,'${code}')">Copy</button>`;
-    list.appendChild(row);
-  });
 }
 
 function copyCode(btn, code) {
@@ -392,9 +608,15 @@ async function init() {
   const session = getSession();
   if (session?.username) {
     try {
-      const db = await getDB();
-      if (db.users?.[session.username]) {
-        showLoggedIn(session.username, db);
+      const users = await sbGet('users', `username=eq.${encodeURIComponent(session.username)}`);
+      if (users.length) {
+        const user = users[0];
+        // Sync displayName from DB
+        if (user.display_name && user.display_name !== session.displayName) {
+          session.displayName = user.display_name;
+          setSession(session);
+        }
+        showLoggedIn(session.username);
         return;
       }
     } catch(e) {}
@@ -406,7 +628,8 @@ async function init() {
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   if (document.getElementById('panel-login').classList.contains('active')) doLogin();
-  else doRegister();
+  else if (document.getElementById('panel-register').classList.contains('active')) doRegister();
+  else if (document.getElementById('panel-forgot').classList.contains('active')) doForgotReset();
 });
 
 init();
